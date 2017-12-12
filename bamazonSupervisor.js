@@ -51,12 +51,12 @@ function startMenu() {
 
 // Function to display sales by department
 function viewSales() {
-	connection.query("SELECT d.department_id, d.department_name, d.over_head_costs, p.department_name, sum(p.product_sales) as product_sales, sum(p.product_sales) - over_head_costs as total_profit FROM products p RIGHT JOIN departments d ON p.department_name = d.department_name GROUP BY d.department_name", function(err, results) {
+	connection.query("SELECT d.department_id, d.department_name, d.over_head_costs, d.department_name, sum(p.product_sales) as product_sales, sum(p.product_sales) - over_head_costs as total_profit FROM products p RIGHT JOIN departments d ON p.department_name = d.department_name GROUP BY d.department_name", function(err, results) {
             if (err) throw err;
 
             console.log(chalk.bold.yellow("\nNow viewing product sales by department...\n"));
             console.log(columnify(results, {minWidth: 20}));
-            
+
             startMenu();
     })
 }

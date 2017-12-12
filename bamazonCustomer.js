@@ -30,6 +30,8 @@ function showData() {
     	idList.push(results[i].item_id.toString());
     	}
 
+    	console.log(chalk.bold.inverse("\n\n Bamazon Customer \n"));
+
     	console.log("\n");
     	console.log(columnify(results, {minWidth: 20}));
     	console.log("\n");
@@ -56,11 +58,12 @@ function showData() {
 
 // Function to place an order
 function placeOrder(id, qty) {
-	connection.query("SELECT stock_quantity, price FROM products WHERE item_id = ?", [id], function(err, results) {
+	connection.query("SELECT * FROM products WHERE item_id = ?", [id], function(err, results) {
     	if (err) throw err;
 
-    	var currentQty = results[0].stock_quantity;
-    	var itemPrice = results[0].price;
+    	var currentQty = parseFloat(results[0].stock_quantity);
+    	var itemPrice = parseFloat(results[0].price);
+    	var currentSales = parseFloat(results[0].product_sales);
 
     	if (qty > currentQty){
     		console.log(chalk.red.bold("\n\nInsufficient Quantity! Order was not placed."));
@@ -68,13 +71,37 @@ function placeOrder(id, qty) {
     	}
     	else {
     		currentQty -= qty;
-    		connection.query("UPDATE products SET stock_quantity = ?  WHERE item_id = ?", [currentQty, id], function(err, results) {
+    		var newSales = parseFloat(qty) * parseFloat(itemPrice);
+    		currentSales += newSales;
+
+    		connection.query("UPDATE products SET stock_quantity = ?, product_sales = ? WHERE item_id = ?", [currentQty, currentSales, id], function(err, results) {
     			if (err) throw err;
     			var cost = qty * itemPrice;
-    			console.log(chalk.bold.yellow("\nThe total cost for your order was: $" + cost + "\n"));
-    			connection.end();
+    			console.log(chalk.bold.yellow("\nThe total cost for your order was: $" + cost.toFixed(2) + "\n"));
+    			whatNow();
 			})
     	}
 
 	})
+}
+
+// Function to determine if the user wishes to quit or place another order
+function whatNow() {
+	inquirer.prompt([
+    	{
+     		type: "list",
+      		name: "action",
+      		choices: ["Yes.", "No, please exit Bamazon Customer app."],
+      		message: "Would you like to place anothere order?"
+    	}
+  	])
+	.then(function(answer) {
+		if (answer.action == "Yes."){
+			showData();
+		}
+		else {
+			console.log(chalk.bold.yellow("\nGoodbye!\n"));
+			connection.end();
+		}
+    })
 }

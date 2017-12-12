@@ -62,7 +62,7 @@ function viewProducts() {
         if (err) throw err;
 
         console.log(chalk.bold.yellow("\nYou are now viewing available products...\n"));
-        console.log(columnify(results));
+        console.log(columnify(results, {minWidth: 20}));
         console.log("\n");
 
         startMenu();
@@ -76,7 +76,7 @@ function viewLow() {
         if (err) throw err;
 
         console.log(chalk.bold.yellow("\nYou are now viewing products with low inventory levels...\n"));
-        console.log(columnify(results));
+        console.log(columnify(results, {minWidth: 20}));
         console.log("\n");
 
         startMenu();
